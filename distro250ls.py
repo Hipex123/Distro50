@@ -1,5 +1,8 @@
-import binascii, random
-from sympy import isprime, mod_inverse
+import binascii, random, os
+try:
+    from sympy import isprime, mod_inverse
+except:
+    os.system('cmd /k "pip install -r requirements.txt"')
 
 def devideBinary(deviNum:int, listed:str):
     lis = []
