@@ -1,7 +1,7 @@
 from distro250ls import encode, decode
 from PIL import Image
 import gradio as gr
-import ast, io, base64
+import ast, io, base64, qrcode
 
 def encodeUI(chipertext:str):
     return encode(chipertext)
@@ -23,6 +23,15 @@ def decodeImage(encodedImageText:str):
     decoded_image_data = base64.b64decode(decodedImageText)
     image = Image.open(io.BytesIO(decoded_image_data))
     return image
+
+def generateQRcode(link):
+    qr = qrcode.QRCode(version=1, box_size=10, border=1)
+    qr.add_data(link)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    img_path = "qr_code.png"
+    img.save(img_path)
+    return img_path
 
 callback = gr.CSVLogger()
 
@@ -55,4 +64,17 @@ with gr.Blocks(title="Distro25o") as demo:
     callback.setup([inputEnc, outputEnc, inputDec, outputDec, imageSizeW, imageSizeH, imgInputEnc, imgOutputEnc, imgInputDec, imgOutputDec], "flagged_data_points")
     btnSaveData.click(lambda *args: callback.flag(args), [inputEnc, outputEnc, inputDec, outputDec, imageSizeW, imageSizeH, imgInputEnc, imgOutputEnc, imgInputDec, imgOutputDec], None, preprocess=False)
 
-demo.launch()
+    QRLink = "https://github.com/Hipex123"
+    qrImage = gr.Image(generateQRcode(QRLink))
+
+    gr.Markdown(
+        """
+            <div style="text-align: right; margin-top: 20px;">
+                <a href="https://github.com/Hipex123" target="_blank" style="font-size: 25px; color: white;">
+                    View on GitHub
+                </a>
+            </div>
+        """
+    )
+
+#link = demo.launch(share=True)
