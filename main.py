@@ -1,7 +1,16 @@
-from distro250ls import encode, decode
-from PIL import Image
-import gradio as gr
-import ast, io, base64, qrcode, webbrowser
+import subprocess
+try:
+    from distro250ls import encode, decode
+    from PIL import Image
+    import gradio as gr
+    import ast, io, base64, qrcode, webbrowser
+except:
+    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip"])
+    subprocess.run(["pip", "install", "-r", "requirements.txt"])
+    from distro250ls import encode, decode
+    from PIL import Image
+    import gradio as gr
+    import ast, io, base64, qrcode, webbrowser
 
 def encodeUI(chipertext:str):
     return encode(chipertext)
