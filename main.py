@@ -1,4 +1,4 @@
-import subprocess
+import subprocess, sys
 try:
     from distro250ls import encode, decode
     from PIL import Image
@@ -171,5 +171,12 @@ with gr.Blocks(title="Distro25o") as demo:
         """
     )
     
-webbrowser.open("http://127.0.0.1:7860/")
-demo.launch()
+if len(sys.argv) >= 2:
+    if sys.argv[1] == "share":
+        demo.launch(share=True)
+    else:
+        webbrowser.open("http://127.0.0.1:7860/")
+        demo.launch()
+else:
+    webbrowser.open("http://127.0.0.1:7860/")
+    demo.launch()
