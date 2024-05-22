@@ -1,8 +1,12 @@
-import binascii, random, os
+import binascii, random, subprocess
 try:
     from sympy import isprime, mod_inverse
 except:
-    os.system('cmd /k "pip install -r requirements.txt"')
+    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip"])
+    subprocess.run(["pip", "install", "-r", "requirements.txt"])
+    #os.system('cmd /k "python -m pip install --upgrade pip"')
+    #os.system('cmd /k "pip install -r requirements.txt"')
+    from sympy import isprime, mod_inverse
 
 def devideBinary(deviNum:int, listed:str):
     lis = []
