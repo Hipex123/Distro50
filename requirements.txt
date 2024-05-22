@@ -1,1 +1,4 @@
+gradio==4.31.5
+Pillow==10.3.0
+qrcode==7.4.2
 sympy==1.12
