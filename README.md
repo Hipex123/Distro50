@@ -1,4 +1,4 @@
-# Porpuse
+# Purpose
 A project for fun. Encryption algorithem will be used in future projects but this is just a showcase.
 
 # Usage
