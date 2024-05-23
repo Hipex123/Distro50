@@ -1,10 +1,10 @@
 # Purpose
-A project for fun. Encryption algorithem will be used in future projects but this is just a showcase.
+It's a project for fun. Encryption algorithm will be used in future projects but this is just a showcase.
 
 # Usage
 ## Running script
-You can run file directly from **main.py** in source folder or from **distro50.bat** in binaries.
-You can also add batch file to your PATH environment variable and use distro50 command directly from terminal.
+You can run a program directly from **main.py** in the source folder or **distro50.bat** in binaries.
+You can also add batch file to your PATH environment variable and use distro50 command directly from a terminal.
 ## Flags
 |Single-dash flags |Double-dash flags|Discription|
 |------------------|----|-----------|
