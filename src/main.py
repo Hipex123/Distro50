@@ -86,7 +86,7 @@ def decVideo(encVideoText):
     return decAudioText
 
 
-margin = """<div style="margin-bottom: 150px;"></div"""
+margin = """<div style="margin-top: 150px;"></div>"""
 callback = gr.CSVLogger()
 
 with gr.Blocks(title="Distro25o") as demo:

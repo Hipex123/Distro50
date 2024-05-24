@@ -1,5 +1,5 @@
-# Purpose
-It's a project for fun. Encryption algorithm will be used in future projects but this is just a showcase.
+# What is it?
+It's a project for fun. Program uses my own encryption/decryption system which will be used in future projects but this is just a showcase.
 
 # Usage
 ## Running script
@@ -12,3 +12,9 @@ You can also add batch file to your PATH environment variable and use distro50 c
 | -s   |--share|Make a public link for your web server so others can connect. (Only works with -r flag)|TEET|
 | -h   |--help|Show help message and exit. (Can't be combined with -r or -s flags)|
 ###### Flags can also be combined like this: *-rs*
+# Features
+### Text encryption/decryption
+### File encryption/decryption
+### Audio encryption/decryption
+### Image encryption/decryption
+### Video encryption/decryption
