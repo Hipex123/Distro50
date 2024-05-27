@@ -1,5 +1,5 @@
 @echo off
-
+::IF "%1" == "-r" cmd /k "python main.py -r & set EXITCODE=%ERRORLEVEL% & cd %origin%" IF %EXITCODE% == 1 cmd /k "cd %~dp0..\src & python main.py -r & cd %origin%"
 set "origin=%cd%"
 cd %~dp0..\src
 
