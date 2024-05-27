@@ -1,19 +1,8 @@
 from distro250ls import encode, decode
-import subprocess, argparse, contextlib, webbrowser, base64, io, ast, msvcrt
+import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode
 from pathlib import Path
-
-currentWorkingDir = Path.cwd()
-parentDir = currentWorkingDir.parent
-requirementsLocation = parentDir / "requirements.txt"
-
-try:
-    from PIL import Image
-    import gradio as gr
-    import qrcode
-except:
-    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
-    subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
-    exit(1337)
+from PIL import Image
+import gradio as gr
 
 
 def encodeUI(chipertext: str):
@@ -236,8 +225,7 @@ elif args.run and not args.share:
 elif args.share and not args.run:
     print("No run flag specified.")
     print("Quitting...")
-
+    exit(1)
 
 print("Press key to shutdown server...")
 msvcrt.getch()
-exit(0)

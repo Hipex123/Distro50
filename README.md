@@ -3,8 +3,8 @@ It's a project for fun. Program uses my own encryption/decryption system which w
 
 # Usage
 ## Running script
-You can run a program directly from **main.py** in the source folder or **distro50.bat** in binaries.
-You can also add batch file to your PATH environment variable and use distro50 command directly from a terminal.
+Run a program from **distro50.bat** in binaries.
+You can also add batch file to your PATH environment variable and use distro50 command from anywhere.
 ## Flags
 |Single-dash flags |Double-dash flags|Discription|
 |------------------|----|-----------|
