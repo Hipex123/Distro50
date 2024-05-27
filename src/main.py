@@ -1,5 +1,5 @@
 from distro250ls import encode, decode
-import subprocess, argparse, contextlib, webbrowser, base64, io, ast
+import subprocess, argparse, contextlib, webbrowser, base64, io, ast, msvcrt
 from pathlib import Path
 
 currentWorkingDir = Path.cwd()
@@ -238,5 +238,6 @@ elif args.share and not args.run:
     print("Quitting...")
 
 
-input("Press key to shutdown server...")
+print("Press key to shutdown server...")
+msvcrt.getch()
 exit(0)
