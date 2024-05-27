@@ -8,8 +8,8 @@ requirementsLocation = parentDir / "requirements.txt"
 try:
     from sympy import isprime, mod_inverse
 except:
-    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip"])
-    subprocess.run(["pip", "install", "-r", str(requirementsLocation)])
+    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
+    subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
     from sympy import isprime, mod_inverse
 
 
