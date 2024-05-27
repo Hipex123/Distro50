@@ -119,8 +119,6 @@ for /f "usebackq tokens=*" %%a in ("requirements.txt") do (
     )
 )
 
-:skip
-
 cd src
 
 cmd /k "python main.py %1 %2 %3 & cd %origin%"
