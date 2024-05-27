@@ -1,4 +1,5 @@
 import binascii, random, subprocess
+from time import sleep
 from pathlib import Path
 
 currentWorkingDir = Path.cwd()
@@ -10,6 +11,7 @@ try:
 except:
     subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
     subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
+    sleep(1)
     from sympy import isprime, mod_inverse
 
 
