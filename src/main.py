@@ -11,8 +11,8 @@ try:
     import gradio as gr
     import ast, io, base64, qrcode, webbrowser
 except:
-    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip"])
-    subprocess.run(["pip", "install", "-r", str(requirementsLocation)])
+    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
+    subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
     from distro250ls import encode, decode
     from PIL import Image
     import gradio as gr
