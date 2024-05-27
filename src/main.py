@@ -227,5 +227,5 @@ elif args.share and not args.run:
     print("Quitting...")
     exit(1)
 
-print("Press key to shutdown server...")
+print("Press any key to shutdown server...")
 msvcrt.getch()
