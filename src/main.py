@@ -1,3 +1,4 @@
+from distro250ls import encode, decode
 import subprocess, argparse, contextlib
 from pathlib import Path
 
@@ -6,23 +7,15 @@ parentDir = currentWorkingDir.parent
 requirementsLocation = parentDir / "requirements.txt"
 
 try:
-    from distro250ls import encode, decode
     from PIL import Image
     import gradio as gr
     import ast, io, base64, qrcode, webbrowser
 except:
     subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
     subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
-
-while True:
-    try:
-        from distro250ls import encode, decode
-        from PIL import Image
-        import gradio as gr
-        import ast, io, base64, qrcode, webbrowser
-        break
-    except:
-        continue
+    from PIL import Image
+    import gradio as gr
+    import ast, io, base64, qrcode, webbrowser
 
 
 def encodeUI(chipertext: str):
