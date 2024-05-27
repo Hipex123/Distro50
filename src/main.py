@@ -1,5 +1,5 @@
 from distro250ls import encode, decode
-import subprocess, argparse, contextlib
+import subprocess, argparse, contextlib, web-browser, base64, io, ast
 from pathlib import Path
 
 currentWorkingDir = Path.cwd()
@@ -9,11 +9,10 @@ requirementsLocation = parentDir / "requirements.txt"
 try:
     from PIL import Image
     import gradio as gr
-    import ast, io, base64, qrcode, webbrowser
+    import qrcode
 except:
     subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
     subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
-    #print("!!!ALL PACKAGES ARE DOWNLOADED, PLEASE RUN PROGRAM AGAIN!!!")
     exit(1)
 
 
