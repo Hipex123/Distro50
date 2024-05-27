@@ -1,4 +1,5 @@
 import subprocess, argparse, contextlib
+from time import sleep
 from pathlib import Path
 
 currentWorkingDir = Path.cwd()
@@ -13,6 +14,7 @@ try:
 except:
     subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
     subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
+    sleep(1)
     from distro250ls import encode, decode
     from PIL import Image
     import gradio as gr
