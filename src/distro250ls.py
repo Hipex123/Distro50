@@ -1,19 +1,4 @@
-import binascii, random, subprocess
-from time import sleep
-from pathlib import Path
-
-currentWorkingDir = Path.cwd()
-parentDir = currentWorkingDir.parent
-requirementsLocation = parentDir / "requirements.txt"
-
-try:
-    from sympy import isprime, mod_inverse
-except:
-    subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
-    subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
-    sleep(1)
-    from sympy import isprime, mod_inverse
-
+import binascii
 
 def devideBinary(deviNum: int, listed: str):
     lis = []
@@ -33,64 +18,6 @@ def devideBinary(deviNum: int, listed: str):
             )
 
     return lis
-
-
-def spltLst(parts: list, splt: int):
-    chrs = []
-
-    for i in range(0, len(parts), splt):
-        group = parts[i : i + splt]
-        chrs.append(group)
-
-    return chrs
-
-
-def rmvChr(s: str, i: int):
-    b = bytearray(s, "utf-8")
-    del b[i]
-    return b.decode()
-
-
-def deDevideBinary(parts: list):
-
-    strNum = parts[-1][:1]
-
-    if strNum == "0":
-        part: str = parts[-1].replace("0", "", 1)
-    elif strNum == "1":
-        part: str = parts[-1].replace("1", "", 1)
-
-    srParts = ""
-    for i in range(len(parts) - 1):
-        srParts += parts[i]
-
-    return srParts + part
-
-    # return ''.join(parts[-5:])
-    # lis = []
-
-    # lastP = listed[len(listed)-(deviNum+(len(listed) % deviNum)):]
-
-    # hasZ:bool = False
-    # able:bool = False
-    # lastPcount:int = 0
-    # lastPcountSave:int
-    # if re.search("0", lastP[:1]):
-    #     hasZ = True
-    #     for chr in lastP:
-    #         if chr == "0":
-    #             lastPcount += 1
-    #         else:
-    #             break
-    # if lastPcount != 0:
-    #     for i in range(lastPcount):
-    #         if len(listed) % deviNum == i:
-    #             able = True
-    #             lastPcountSave = i
-    #             break
-    # if len(listed) % deviNum != 0 and hasZ and able:
-    #         mod = listed[len(listed)-deviNum:].replace('0', '', lastPcountSave)
-    #        listed = listed[:len(listed)-deviNum] + mod
 
 
 def strToBinaryBase(listed: str, base: bool = True):
@@ -117,49 +44,6 @@ def findInList(lst: list, tabl: dict, base: bool = True):
                     lis.append(lsVl)
 
     return lis
-
-
-def modEspresso(b, exp, m):
-    res = 1
-    while exp > 1:
-        if exp & 1:
-            res = (res * b) % m
-        b = b**2 % m
-        exp >>= 1
-    return (b * res) % m
-
-
-def lcm(a, b):
-    return abs(a * b)
-
-
-def generate_prime_number(n: int):
-    rand = random.randint(pow(10, n - 1), pow(10, n) - 1)
-    if not isprime(rand):
-        return generate_prime_number(n)
-    return rand
-
-
-def nKeys(k: int):
-    primes = [generate_prime_number(k), generate_prime_number(k)]
-
-    n = primes[0] * primes[1]
-
-    lcmP = lcm(primes[0] - 1, primes[1] - 1)
-
-    e = generate_prime_number(6)
-
-    while True:
-        try:
-            d = mod_inverse(e, lcmP)
-            break
-        except:
-            e = generate_prime_number(6)
-
-    return [[n, e], [n, d]]
-
-
-nKys = nKeys(100)
 
 
 def encode(enc: str):
@@ -190,11 +74,6 @@ def encode(enc: str):
 
     inputFOc = strToBinaryBase(sr25)
 
-    # binK = int(inputFOc, 2)
-
-    # mE = modEspresso(binK, nKys[0][1], nKys[0][0])
-    # print(f"Encrypted messege: {mE}")
-
     inputFNn = devideBinary(10, inputFOc)
 
     inputFDc = findInList(inputFNn, tableT)
@@ -202,7 +81,6 @@ def encode(enc: str):
     encStr = sr25[len(sr25) - 10 :]
     encHt = str25T[-1][1:]
 
-    # inputFDc.append(mE)
     inputFDc.append(encHt)
     inputFDc.append(encStr)
 
@@ -213,13 +91,9 @@ def decode(dec: list):
 
     decStr = dec[-1]
     decHt = dec[-2]
-    # decEMO = dec[-3]
 
     for i in range(2):
         dec.pop(-1)
-
-    # decEMT = modEspresso(decEMO, nKys[1][1], nKys[1][0])
-    # print(f"Decrypted messege: {decEMT}")
 
     inputFDcT = dec
     inputFNn = []
@@ -247,7 +121,7 @@ def decode(dec: list):
     for i in range(-20, 20):
         partO = inputFNn[-1].replace(
             "0", "", zCount + i
-        )  # Origanly Error if would be combined with any 2nd number from d on (ad, af, ah)
+        )
 
         srParts = ""
         for i in range(len(inputFNn) - 1):
