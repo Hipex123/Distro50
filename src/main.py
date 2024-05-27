@@ -240,3 +240,4 @@ elif args.share and not args.run:
 
 
 input("Press key to shutdown server...")
+exit(0)
