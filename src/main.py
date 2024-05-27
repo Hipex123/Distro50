@@ -13,7 +13,7 @@ try:
 except:
     subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
     subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
-    exit(1)
+    exit(1337)
 
 
 def encodeUI(chipertext: str):
