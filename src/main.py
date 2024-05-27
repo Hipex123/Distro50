@@ -13,8 +13,8 @@ try:
 except:
     subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
     subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
-    print("!!!ALL PACKAGES ARE DOWNLOADED, PLEASE RUN PROGRAM AGAIN!!!")
-    exit()
+    #print("!!!ALL PACKAGES ARE DOWNLOADED, PLEASE RUN PROGRAM AGAIN!!!")
+    exit(1)
 
 
 def encodeUI(chipertext: str):
