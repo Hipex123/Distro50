@@ -1,5 +1,5 @@
 from distro250ls import encode, decode
-import subprocess, argparse, contextlib, web-browser, base64, io, ast
+import subprocess, argparse, contextlib, webbrowser, base64, io, ast
 from pathlib import Path
 
 currentWorkingDir = Path.cwd()
