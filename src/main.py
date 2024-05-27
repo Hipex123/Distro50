@@ -13,9 +13,8 @@ try:
 except:
     subprocess.run(["python", "-m", "pip", "install", "--upgrade", "pip", "--user"])
     subprocess.run(["pip", "install", "-r", str(requirementsLocation), "--user"])
-    from PIL import Image
-    import gradio as gr
-    import ast, io, base64, qrcode, webbrowser
+    print("!!!ALL PACKAGES ARE DOWNLOADED, PLEASE RUN PROGRAM AGAIN!!!")
+    exit()
 
 
 def encodeUI(chipertext: str):
