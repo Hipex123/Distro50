@@ -218,14 +218,16 @@ if args.run and args.share:
             publicUrl = line[23:]
 
     webbrowser.open(publicUrl)
+    print("Press any key to shutdown server...")
+    msvcrt.getch()
 
 elif args.run and not args.share:
     demo.launch(prevent_thread_lock=True)
     webbrowser.open("http://127.0.0.1:7860/")
+    print("Press any key to shutdown server...")
+    msvcrt.getch()
+    
 elif args.share and not args.run:
     print("No run flag specified.")
     print("Quitting...")
     exit(1)
-
-print("Press any key to shutdown server...")
-msvcrt.getch()
