@@ -1,26 +1,22 @@
 @echo off
 
-python -m pip install --upgrade pip >nul
+pushd %~dp0..
 
-set "origin=%cd%"
-
-cd %~dp0..
+set missingPackages=0
 
 pip show gradio >nul
-if %errorlevel% neq 0 (
-    pip install -r requirements.txt
-)
+if %errorlevel% neq 0 set missingPackages=1
 
 pip show qrcode >nul
-if %errorlevel% neq 0 (
-    pip install -r requirements.txt
-)
+if %errorlevel% neq 0 set missingPackages=1
 
 pip show pillow >nul
-if %errorlevel% neq 0 (
-    pip install -r requirements.txt
-)
+if %errorlevel% neq 0 set missingPackages=1
+
+if %missingPackages% equ 1 pip install -r requirements.txt
 
 cd src
 
-cmd /k "python main.py %1 %2 %3 & cd %origin%"
+python main.py %1 %2 %3
+
+popd

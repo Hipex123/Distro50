@@ -1,6 +1,11 @@
 # What is it?
 Demo of my encryption/decryption system which will be used in future projects.
 
+# Requirements
+Python 3    (preferably around version 3.10)
+
+Pip         (preferably around version 24)
+
 # Usage
 ## Running script
 Run **distro50.bat** (which is in binaries) from cmd with -r or -h flag.
