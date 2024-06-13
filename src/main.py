@@ -75,7 +75,7 @@ def decVideo(encVideoText):
 margin = """<div style="margin-top: 150px;"></div>"""
 callback = gr.CSVLogger()
 
-with gr.Blocks(title="Distro25o") as demo:
+with gr.Blocks(title="Distro50") as demo:
     inputEnc = gr.Textbox(label="Chipertext")
     outputEnc = gr.Textbox(label="Encoded Text")
     encodeButton = gr.Button("Encode Text")
