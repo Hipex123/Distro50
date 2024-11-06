@@ -1,4 +1,4 @@
-# What is it?
+# Distro50
 Demo of my encryption/decryption system which will be used in future projects.
 
 # Requirements
