@@ -1,9 +1,7 @@
-from distro250ls import encode, decode
+from libs.distro250ls import encode, decode
 import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode
-from pathlib import Path
 from PIL import Image
 import gradio as gr
-
 
 def encodeUI(chipertext: str):
     return encode(chipertext)

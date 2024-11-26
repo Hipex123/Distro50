@@ -2,20 +2,15 @@ import binascii
 
 def devideBinary(deviNum: int, listed: str):
     lis = []
+    length = len(listed)
 
-    for i in range(len(listed)):
+    for i in range(0, length, deviNum):
+        chunk = listed[i:i + deviNum]
 
-        if i % deviNum == 0 and i != 0:
-            lis.append(listed[(i - deviNum) : i])
+        if len(chunk) < deviNum:
+            chunk = "0" * (deviNum - len(chunk)) + chunk
 
-        if i == len(listed) - 1 and (i + 1) % deviNum == 0:
-            lis.append(listed[(i - (deviNum - 1)) : i + 1])
-
-        if i == len(listed) - 1 and (i + 1) % deviNum != 0:
-            lis.append(
-                "0" * (deviNum - len(listed) % deviNum)
-                + listed[len(listed) - (len(listed) % deviNum) : len(listed)]
-            )
+        lis.append(chunk)
 
     return lis
 
@@ -33,38 +28,22 @@ def strToBinaryBase(listed: str, base: bool = True):
 def findInList(lst: list, tabl: dict, base: bool = True):
     lis = []
     if base:
+        reversed_table = {v: k for k, v in tabl.items()}
         for lstItm in lst:
-            for lsKy, lsVl in tabl.items():
-                if lstItm == lsVl:
-                    lis.append(lsKy)
-    elif not base:
+            if lstItm in reversed_table:
+                lis.append(reversed_table[lstItm])
+    else:
         for lstItm in lst:
-            for lsKy, lsVl in tabl.items():
-                if lstItm == lsKy:
-                    lis.append(lsVl)
+            if lstItm in tabl:
+                lis.append(tabl[lstItm])
 
     return lis
 
 
 def encode(enc: str):
+    str25T = [f"%{ord(ch)}" for ch in enc]
 
-    inputFO = enc
-
-    str25O = []
-    str25T = []
-
-    for inputFOchr in inputFO:
-        str25O.append(str(ord(inputFOchr)))
-
-    for str25Oitm in str25O:
-        str25T.append("%" + str25Oitm)
-
-    bin25 = []
-
-    for str25Titm in str25T:
-        bin25.append(strToBinaryBase(str25Titm))
-
-    binStr25 = "".join(bin25)
+    binStr25 = "".join(strToBinaryBase(item) for item in str25T)
 
     inputFSx = devideBinary(5, binStr25)
 
@@ -73,12 +52,11 @@ def encode(enc: str):
     sr25 = "".join(inputFSp)
 
     inputFOc = strToBinaryBase(sr25)
-
     inputFNn = devideBinary(10, inputFOc)
 
     inputFDc = findInList(inputFNn, tableT)
 
-    encStr = sr25[len(sr25) - 10 :]
+    encStr = sr25[-10:]
     encHt = str25T[-1][1:]
 
     inputFDc.append(encHt)
@@ -88,91 +66,33 @@ def encode(enc: str):
 
 
 def decode(dec: list):
+    decStr = dec.pop()
+    decHt = dec.pop()
 
-    decStr = dec[-1]
-    decHt = dec[-2]
+    inputFNn = [tableT[item] for item in dec if item in tableT]
 
-    for i in range(2):
-        dec.pop(-1)
-
-    inputFDcT = dec
-    inputFNn = []
-
-    zCount = 0
-
-    degreeO = inputFDcT[-1]
-    degreeT = ""
-
-    for lsKy, lsVl in tableT.items():
-        if degreeO == lsKy:
-            degreeT += lsVl
-
-    for i in range(len(degreeT)):
-        if degreeT[i] == "0":
-            zCount += 1
-            continue
-        break
-
-    for inputFDcTItm in inputFDcT:
-        for lsKy, lsVl in tableT.items():
-            if inputFDcTItm == lsKy:
-                inputFNn.append(lsVl)
+    degreeT = tableT.get(dec[-1], "")
+    zCount = next((i for i, c in enumerate(degreeT) if c != "0"), 0)
 
     for i in range(-20, 20):
-        partO = inputFNn[-1].replace(
-            "0", "", zCount + i
-        )
+        partO = inputFNn[-1].replace("0", "", zCount + i)
 
-        srParts = ""
-        for i in range(len(inputFNn) - 1):
-            srParts += inputFNn[i]
-
-        wholeO = srParts + partO
+        wholeO = "".join(inputFNn[:-1]) + partO
 
         sr100T = strToBinaryBase(wholeO, False)
 
-        if sr100T[len(sr100T) - 10 :] != decStr:
-            continue
-        else:
+        if sr100T[-10:] == decStr:
             break
 
-    bin25O = []
-    for char in sr100T:
-        bin25O.append(char)
-
-    bin25T = findInList(bin25O, tableO, False)
+    bin25T = findInList(list(sr100T), tableO, base=False)
     bin25Th = "".join(bin25T)
 
     str25O = strToBinaryBase(bin25Th, False)
 
-    str25T = []
-    addStr = ""
-    pCount = 0
-
-    for char in str25O:
-        if char == "%":
-            pCount += 1
-
-    for i in range(1, len(str25O)):
-        if str25O[i] != "%":
-            addStr += str25O[i]
-            if i == len(str25O) - 1:
-                str25T.append(addStr)
-            continue
-
-        str25T.append(addStr)
-        addStr = ""
-
+    str25T = str25O.split("%")
     str25T[-1] = decHt
 
-    str25Th = []
-
-    for str25TItm in str25T:
-        str25Th.append(chr(int(str25TItm)))
-
-    fnl = "".join(str25Th)
-
-    return fnl
+    return "".join(chr(int(code)) for code in str25T if code)
 
 
 tableO = {
