@@ -1,0 +1,6 @@
+﻿  Building Custom Rule C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/CMakeLists.txt
+  distro50ls.cpp
+     Creating library C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build/Debug/distro50ls.lib and object C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build/Debug/distro50ls.exp
+  distro50ls.vcxproj -> C:\Users\123\OneDrive\Namizje\VSC_PROGRAMS\Cryptography\Dis25o\src\libs\build\Debug\distro50ls.cp310-win_amd64.pyd
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

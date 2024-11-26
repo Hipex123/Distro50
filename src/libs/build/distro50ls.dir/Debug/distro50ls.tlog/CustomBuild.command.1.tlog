@@ -1,0 +1,10 @@
+^C:\USERS\123\ONEDRIVE\NAMIZJE\VSC_PROGRAMS\CRYPTOGRAPHY\DIS25O\SRC\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src -BC:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build --check-stamp-file C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
