@@ -1,5 +1,4 @@
 from libs.distro250ls import encode, decode
-from libs.build.Debug.distro50ls import *
 import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode
 from PIL import Image
 import gradio as gr

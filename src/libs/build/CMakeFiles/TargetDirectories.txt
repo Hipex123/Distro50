@@ -1,4 +1,0 @@
-C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build/CMakeFiles/distro50ls.dir
-C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build/CMakeFiles/ZERO_CHECK.dir
-C:/Users/123/OneDrive/Namizje/VSC_PROGRAMS/Cryptography/Dis25o/src/libs/build/libs/pybind11/CMakeFiles/ALL_BUILD.dir
