@@ -43,6 +43,11 @@ def encFile(file):
         content = f.read()
     return encode(content)
 
+def decFile(file):
+    with open(file, "r", encoding="utf-8") as f:
+        content = f.read()
+    return decode(ast.literal_eval(content))
+
 
 def encAudio(fileP):
     with open(fileP, "rb") as f:
@@ -92,6 +97,13 @@ with gr.Blocks(title="Distro50") as demo:
     outputFileEnc = gr.Textbox(label="Encoded File")
     fileEncButton = gr.Button("Encode File")
     fileEncButton.click(fn=encFile, inputs=inputFileEnc, outputs=outputFileEnc)
+
+    gr.Markdown(margin)
+
+    inputFileDec = gr.UploadButton(label="Upload Encoded File", type="filepath")
+    outputFileDec = gr.Textbox(label="Chiper File")
+    fileDecButton = gr.Button("Decode File")
+    fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=outputFileDec)
 
     gr.Markdown(margin)
 
