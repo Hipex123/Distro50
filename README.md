@@ -26,7 +26,7 @@ You can also add batch file to your PATH environment variable and use *distro50*
 ### Audio encryption/decryption
 ![Posnetek zaslona 2024-06-03 073040](https://github.com/Hipex123/Distro50/assets/117768734/b59e14fc-7884-4349-90bd-ae5190976955)
 ### Image encryption/decryption
-###### Here you can choose width and height for compression on encoding. Width and height should be around 300-600 for a reasonable time
+###### Here you can choose width and height for compression on encoding.
 ![Posnetek zaslona 2024-06-03 073414](https://github.com/Hipex123/Distro50/assets/117768734/ad96ea75-015c-4340-8bd6-bb475f63a121)
 
 ![Posnetek zaslona 2024-06-03 073621](https://github.com/Hipex123/Distro50/assets/117768734/f5eda15e-b6bc-4b51-b372-f88bc032eea2)
