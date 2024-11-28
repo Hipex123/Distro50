@@ -13,7 +13,7 @@ if %errorlevel% neq 0 set missingPackages=1
 pip show pillow >nul
 if %errorlevel% neq 0 set missingPackages=1
 
-if %missingPackages% equ 1 pip install -r requirements.txt
+if %missingPackages% equ 1 pip install -r requirements.txt --user
 
 cd src
 
