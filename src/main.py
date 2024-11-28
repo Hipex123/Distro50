@@ -13,7 +13,7 @@ def decodeUI(encodedText: str):
 
 
 def encodeImage(image: Image.Image, width=300, height=300):
-    image.thumbnail((width, height), Image.Resampling.LANCZOS)
+    image.thumbnail((width, height), Image.Resampling.NEAREST)
     img_bytes = io.BytesIO()
     image.save(img_bytes, format="PNG")
     encoded_image = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
