@@ -1,5 +1,5 @@
 from libs.distro250ls import encode, decode
-import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode
+import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, datetime
 from PIL import Image
 import gradio as gr
 
@@ -37,16 +37,34 @@ def generateQRcode(link):
     img.save(img_path)
     return img_path
 
-
 def encFile(file):
+    currDatetime = datetime.datetime.now()
+
     with open(file, "r", encoding="utf-8") as f:
         content = f.read()
-    return encode(content)
+
+    try:
+        f = open(f"saved_files/encodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
+    except:
+        f = open(f"saved_files/encodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
+
+    f.write(str(encode(content)))
+    f.close()
+
 
 def decFile(file):
+    currDatetime = datetime.datetime.now()
+
     with open(file, "r", encoding="utf-8") as f:
         content = f.read()
-    return decode(ast.literal_eval(content))
+
+    try:
+        f = open(f"saved_files/decodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
+    except:
+        f = open(f"saved_files/decodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
+
+    f.write(decode(ast.literal_eval(content)))
+    f.close()
 
 
 def encAudio(fileP):
@@ -94,17 +112,15 @@ with gr.Blocks(title="Distro50") as demo:
     gr.Markdown(margin)
 
     inputFileEnc = gr.UploadButton(label="Upload File", type="filepath")
-    outputFileEnc = gr.Textbox(label="Encoded File")
     fileEncButton = gr.Button("Encode File")
-    fileEncButton.click(fn=encFile, inputs=inputFileEnc, outputs=outputFileEnc)
+    fileEncButton.click(fn=encFile, inputs=inputFileEnc)
 
     gr.Markdown(margin)
 
     inputFileDec = gr.UploadButton(label="Upload Encoded File", type="filepath")
-    outputFileDec = gr.Textbox(label="Chiper File")
     fileDecButton = gr.Button("Decode File")
-    fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=outputFileDec)
-
+    fileDecButton.click(fn=decFile, inputs=inputFileDec)
+    
     gr.Markdown(margin)
 
     audioInputEnc = gr.Audio(label="Upload Audio", type="filepath")
