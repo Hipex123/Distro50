@@ -13,18 +13,43 @@ def decodeUI(encodedText: str):
 
 
 def encodeImage(image: Image.Image, width=300, height=300):
+    currDatetime = datetime.datetime.now()
+
     image.thumbnail((width, height), Image.Resampling.NEAREST)
     img_bytes = io.BytesIO()
     image.save(img_bytes, format="PNG")
     encoded_image = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
-    return encode(encoded_image)
 
+    try:
+        f = open(f"saved_files/encodedImage-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
+    except:
+        f = open(f"saved_files/encodedImage-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
 
-def decodeImage(encodedImageText: str):
-    encodedImageList = ast.literal_eval(encodedImageText)
+    f.write(str(encode(encoded_image)))
+    f.close()
+
+def decodeImageSave(file):
+    currDatetime = datetime.datetime.now()
+
+    with open(file, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    encodedImageList = ast.literal_eval(content)
     decodedImageText = decode(encodedImageList)
     decoded_image_data = base64.b64decode(decodedImageText)
     image = Image.open(io.BytesIO(decoded_image_data))
+
+    image.save(f"saved_files/decodedImage-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
+
+def decodeImage(file):
+    with open(file, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    encodedImageList = ast.literal_eval(content)
+    decodedImageText = decode(encodedImageList)
+    decoded_image_data = base64.b64decode(decodedImageText)
+    image = Image.open(io.BytesIO(decoded_image_data))
+
     return image
 
 
@@ -36,6 +61,7 @@ def generateQRcode(link):
     img_path = "qr_code.png"
     img.save(img_path)
     return img_path
+
 
 def encFile(file):
     currDatetime = datetime.datetime.now()
@@ -51,8 +77,7 @@ def encFile(file):
     f.write(str(encode(content)))
     f.close()
 
-
-def decFile(file):
+def decFileSave(file):
     currDatetime = datetime.datetime.now()
 
     with open(file, "r", encoding="utf-8") as f:
@@ -65,6 +90,11 @@ def decFile(file):
 
     f.write(decode(ast.literal_eval(content)))
     f.close()
+
+def decFile(file):
+    with open(file, "r", encoding="utf-8") as f:
+        content = f.read()
+    return decode(ast.literal_eval(content))
 
 
 def encAudio(fileP):
@@ -119,7 +149,10 @@ with gr.Blocks(title="Distro50") as demo:
 
     inputFileDec = gr.UploadButton(label="Upload Encoded File", type="filepath")
     fileDecButton = gr.Button("Decode File")
-    fileDecButton.click(fn=decFile, inputs=inputFileDec)
+    fileDecButtonSave = gr.Button("Save Decoded File")
+    outputFileDec = gr.Textbox(label="Chiper File")
+    fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=outputFileDec)
+    fileDecButtonSave.click(fn=decFileSave, inputs=inputFileDec)
     
     gr.Markdown(margin)
 
@@ -141,18 +174,19 @@ with gr.Blocks(title="Distro50") as demo:
     imageSizeH = gr.Number(label="Image Height")
 
     imgInputEnc = gr.Image(type="pil", label="Input Image")
-    imgOutputEnc = gr.Textbox(label="Encoded Image")
     imgEncodeButton = gr.Button("Encode Image")
     imgEncodeButton.click(
-        encodeImage, inputs=[imgInputEnc, imageSizeW, imageSizeH], outputs=imgOutputEnc
+        encodeImage, inputs=[imgInputEnc, imageSizeW, imageSizeH]
     )
 
     gr.Markdown(margin)
 
-    imgInputDec = gr.Textbox(label="Encoded Image")
-    imgOutputDec = gr.Image(type="pil", label="Decoded Image")
+    imgInputDec = gr.UploadButton(label="Upload Encoded Image", type="filepath")
     imgEncodeButton = gr.Button("Decode Image")
+    imgOutputDec = gr.Image(type="pil", label="Decoded Image")
+    imgEncodeButtonSave = gr.Button("Save Decoded Image")
     imgEncodeButton.click(decodeImage, inputs=imgInputDec, outputs=imgOutputDec)
+    imgEncodeButtonSave.click(decodeImageSave, inputs=imgInputDec)
 
     gr.Markdown(margin)
 
@@ -179,7 +213,6 @@ with gr.Blocks(title="Distro50") as demo:
             imageSizeW,
             imageSizeH,
             imgInputEnc,
-            imgOutputEnc,
             imgInputDec,
             imgOutputDec,
         ],
@@ -195,7 +228,6 @@ with gr.Blocks(title="Distro50") as demo:
             imageSizeW,
             imageSizeH,
             imgInputEnc,
-            imgOutputEnc,
             imgInputDec,
             imgOutputDec,
         ],
