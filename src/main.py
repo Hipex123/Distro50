@@ -3,12 +3,12 @@ import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, dateti
 from PIL import Image
 import gradio as gr
 
-def encodeUI(chipertext: str):
-    return encode(chipertext)
+def encodeUI(plaintext: str):
+    return encode(plaintext)
 
 
-def decodeUI(encodedText: str):
-    encodedList = ast.literal_eval(encodedText)
+def decodeUI(ciphertext: str):
+    encodedList = ast.literal_eval(ciphertext)
     return decode(encodedList)
 
 
@@ -21,9 +21,9 @@ def encodeImage(image: Image.Image, width=300, height=300):
     encoded_image = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
 
     try:
-        f = open(f"saved_files/encodedImage-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
+        f = open(f"../saved_files/cipher/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
     except:
-        f = open(f"saved_files/encodedImage-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
+        f = open(f"../saved_files/cipher/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
 
     f.write(str(encode(encoded_image)))
     f.close()
@@ -39,7 +39,7 @@ def decodeImageSave(file):
     decoded_image_data = base64.b64decode(decodedImageText)
     image = Image.open(io.BytesIO(decoded_image_data))
 
-    image.save(f"saved_files/decodedImage-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
+    image.save(f"../saved_files/plain/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
 
 def decodeImage(file):
     with open(file, "r", encoding="utf-8") as f:
@@ -63,62 +63,62 @@ def generateQRcode(link):
     return img_path
 
 
-def encFile(file):
+def encFile(plainFile):
     currDatetime = datetime.datetime.now()
 
-    with open(file, "r", encoding="utf-8") as f:
+    with open(plainFile, "r", encoding="utf-8") as f:
         content = f.read()
 
     try:
-        f = open(f"saved_files/encodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
+        f = open(f"../saved_files/cipher/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
     except:
-        f = open(f"saved_files/encodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
+        f = open(f"../saved_files/cipher/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
 
     f.write(str(encode(content)))
     f.close()
 
-def decFileSave(file):
+def decFileSave(cipherFile):
     currDatetime = datetime.datetime.now()
 
-    with open(file, "r", encoding="utf-8") as f:
+    with open(cipherFile, "r", encoding="utf-8") as f:
         content = f.read()
 
     try:
-        f = open(f"saved_files/decodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
+        f = open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "x", encoding="utf-8")
     except:
-        f = open(f"saved_files/decodedFile-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
+        f = open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
 
     f.write(decode(ast.literal_eval(content)))
     f.close()
 
-def decFile(file):
-    with open(file, "r", encoding="utf-8") as f:
+def decFile(cipherFile):
+    with open(cipherFile, "r", encoding="utf-8") as f:
         content = f.read()
     return decode(ast.literal_eval(content))
 
 
-def encAudio(fileP):
-    with open(fileP, "rb") as f:
+def encAudio(plainFile):
+    with open(plainFile, "rb") as f:
         contents = f.read()
 
     return encode(str(contents))
 
 
-def decAudio(encAudioText):
-    encAudioList = ast.literal_eval(encAudioText)
+def decAudio(chiperFile):
+    encAudioList = ast.literal_eval(chiperFile)
     decAudioText = decode(encAudioList)
     return decAudioText
 
 
-def encVideo(video):
-    with open(video, "rb") as f:
+def encVideo(plainVideo):
+    with open(plainVideo, "rb") as f:
         contents = f.read()
 
     return encode(str(contents))
 
 
-def decVideo(encVideoText):
-    encVideoList = ast.literal_eval(encVideoText)
+def decVideo(cipherVideo):
+    encVideoList = ast.literal_eval(cipherVideo)
     decAudioText = decode(encVideoList)
     return decAudioText
 
@@ -127,44 +127,44 @@ margin = """<div style="margin-top: 150px;"></div>"""
 callback = gr.CSVLogger()
 
 with gr.Blocks(title="Distro50") as demo:
-    inputEnc = gr.Textbox(label="Chipertext")
-    outputEnc = gr.Textbox(label="Encoded Text")
+    inputEnc = gr.Textbox(label="Plaintext")
+    outputEnc = gr.Textbox(label="Ciphertext")
     encodeButton = gr.Button("Encode Text")
     encodeButton.click(encodeUI, inputs=inputEnc, outputs=outputEnc)
 
     gr.Markdown(margin)
 
-    inputDec = gr.Textbox(label="Encoded Text")
-    outputDec = gr.Textbox(label="Chipertext")
+    inputDec = gr.Textbox(label="Ciphertext")
+    outputDec = gr.Textbox(label="Plaintext")
     decodeButton = gr.Button("Decode Text")
     decodeButton.click(decodeUI, inputs=inputDec, outputs=outputDec)
 
     gr.Markdown(margin)
 
-    inputFileEnc = gr.UploadButton(label="Upload File", type="filepath")
+    inputFileEnc = gr.UploadButton(label="Upload Plain File", type="filepath")
     fileEncButton = gr.Button("Encode File")
     fileEncButton.click(fn=encFile, inputs=inputFileEnc)
 
     gr.Markdown(margin)
 
-    inputFileDec = gr.UploadButton(label="Upload Encoded File", type="filepath")
+    inputFileDec = gr.UploadButton(label="Upload Cipher File", type="filepath")
     fileDecButton = gr.Button("Decode File")
-    fileDecButtonSave = gr.Button("Save Decoded File")
-    outputFileDec = gr.Textbox(label="Chiper File")
+    fileDecButtonSave = gr.Button("Save Plain File")
+    outputFileDec = gr.Textbox(label="Plain File")
     fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=outputFileDec)
     fileDecButtonSave.click(fn=decFileSave, inputs=inputFileDec)
     
     gr.Markdown(margin)
 
     audioInputEnc = gr.Audio(label="Upload Audio", type="filepath")
-    audioOutputEnc = gr.Textbox(label="Encoded File")
+    audioOutputEnc = gr.Textbox(label="Cipher File")
     audioEncButton = gr.Button("Encode Audio")
     audioEncButton.click(fn=encAudio, inputs=audioInputEnc, outputs=audioOutputEnc)
 
     gr.Markdown(margin)
 
-    audioInputDec = gr.Textbox(label="Encoded Audio")
-    audioOutputDec = gr.Audio(label="Decoded Audio")
+    audioInputDec = gr.Textbox(label="Cipher Audio")
+    audioOutputDec = gr.Audio(label="Plain Audio")
     audioDecButton = gr.Button("Decode Audio")
     audioDecButton.click(fn=decAudio, inputs=audioInputDec, outputs=audioOutputDec)
 
@@ -173,7 +173,7 @@ with gr.Blocks(title="Distro50") as demo:
     imageSizeW = gr.Number(label="Image Width")
     imageSizeH = gr.Number(label="Image Height")
 
-    imgInputEnc = gr.Image(type="pil", label="Input Image")
+    imgInputEnc = gr.Image(type="pil", label="Plain Image")
     imgEncodeButton = gr.Button("Encode Image")
     imgEncodeButton.click(
         encodeImage, inputs=[imgInputEnc, imageSizeW, imageSizeH]
@@ -181,24 +181,24 @@ with gr.Blocks(title="Distro50") as demo:
 
     gr.Markdown(margin)
 
-    imgInputDec = gr.UploadButton(label="Upload Encoded Image", type="filepath")
+    imgInputDec = gr.UploadButton(label="Upload Cipher Image", type="filepath")
     imgEncodeButton = gr.Button("Decode Image")
-    imgOutputDec = gr.Image(type="pil", label="Decoded Image")
-    imgEncodeButtonSave = gr.Button("Save Decoded Image")
+    imgOutputDec = gr.Image(type="pil", label="Plain Image")
+    imgEncodeButtonSave = gr.Button("Save Plain Image")
     imgEncodeButton.click(decodeImage, inputs=imgInputDec, outputs=imgOutputDec)
     imgEncodeButtonSave.click(decodeImageSave, inputs=imgInputDec)
 
     gr.Markdown(margin)
 
-    videoInputEnc = gr.Video(label="Input Video")
-    videoOutputEnc = gr.Textbox(label="Encoded Video")
+    videoInputEnc = gr.Video(label="Plain Video")
+    videoOutputEnc = gr.Textbox(label="Cipher Video")
     videoEncodeButton = gr.Button("Encode Video")
     videoEncodeButton.click(encVideo, inputs=videoInputEnc, outputs=videoOutputEnc)
 
     gr.Markdown(margin)
 
-    videoInputDec = gr.Textbox(label="Encoded Video")
-    videoOutputDec = gr.Video(label="Decoded Video")
+    videoInputDec = gr.Textbox(label="Cipher Video")
+    videoOutputDec = gr.Video(label="Plain Video")
     videoDecodeButton = gr.Button("Decode Video")
     videoDecodeButton.click(decVideo, inputs=videoInputDec, outputs=videoOutputDec)
 
@@ -216,7 +216,7 @@ with gr.Blocks(title="Distro50") as demo:
             imgInputDec,
             imgOutputDec,
         ],
-        "flagged_data_points",
+        "../flagged_data_points",
     )
     btnSaveData.click(
         lambda *args: callback.flag(args),
