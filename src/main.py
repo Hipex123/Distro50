@@ -6,7 +6,6 @@ import gradio as gr
 def encodeUI(plaintext: str):
     return encode(plaintext)
 
-
 def decodeUI(ciphertext: str):
     encodedList = ast.literal_eval(ciphertext)
     return decode(encodedList)
@@ -20,10 +19,8 @@ def encodeImage(image: Image.Image, width=300, height=300):
     image.save(img_bytes, format="PNG")
     encoded_image = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
 
-    f = open(f"../saved_files/cipher/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
-
-    f.write(str(encode(encoded_image)))
-    f.close()
+    with open(f"../saved_files/cipher/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
+        f.write(str(encode(encoded_image)))
 
 def decodeImageSave(file):
     currDatetime = datetime.datetime.now()
@@ -63,24 +60,20 @@ def generateQRcode(link):
 def encFile(plainFile):
     currDatetime = datetime.datetime.now()
 
-    with open(plainFile, "r", encoding="utf-8") as f:
-        content = f.read()
+    with open(plainFile, "r", encoding="utf-8") as fi:
+        content = fi.read()
 
-    f = open(f"../saved_files/cipher/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
-
-    f.write(str(encode(content)))
-    f.close()
+    with open(f"../saved_files/cipher/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
+        f.write(str(encode(content)))
 
 def decFileSave(cipherFile):
     currDatetime = datetime.datetime.now()
 
-    with open(cipherFile, "r", encoding="utf-8") as f:
-        content = f.read()
+    with open(cipherFile, "r", encoding="utf-8") as fi:
+        content = fi.read()
 
-    f = open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
-
-    f.write(decode(ast.literal_eval(content)))
-    f.close()
+    with open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
+        f.write(decode(ast.literal_eval(content)))
 
 def decFile(cipherFile):
     with open(cipherFile, "r", encoding="utf-8") as f:
@@ -91,21 +84,17 @@ def decFile(cipherFile):
 def encAudio(plainFile):
     currDatetime = datetime.datetime.now()
 
-    with open(plainFile, "rb") as f:
-        content = f.read()
+    with open(plainFile, "rb") as fi:
+        content = fi.read()
 
     encodedContent = base64.b64encode(content).decode("utf-8")
 
-    f = open(f"../saved_files/cipher/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8")
-
-    f.write(str(encode(encodedContent)))
-    f.close()
-
-
+    with open(f"../saved_files/cipher/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
+        f.write(str(encode(encodedContent)))
 
 def decAudio(chiperFile):
-    with open(chiperFile, "r", encoding="utf-8") as f:
-        contents = ast.literal_eval(f.read())
+    with open(chiperFile, "r", encoding="utf-8") as fi:
+        contents = ast.literal_eval(fi.read())
 
     decodedContent = decode(contents)
     decodedContentBin = base64.b64decode(decodedContent)
@@ -118,16 +107,27 @@ def decAudio(chiperFile):
 
 
 def encVideo(plainVideo):
-    with open(plainVideo, "rb") as f:
-        contents = f.read()
+    currDatetime = datetime.datetime.now()
 
-    return encode(str(contents))
+    with open(plainVideo, "rb") as fi:
+        content = fi.read()
+    
+    encodedContent = base64.b64encode(content).decode("utf-8")
 
+    with open(f"../saved_files/cipher/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
+        f.write(str(encode(encodedContent)))
 
 def decVideo(cipherVideo):
-    encVideoList = ast.literal_eval(cipherVideo)
-    decAudioText = decode(encVideoList)
-    return decAudioText
+    with open(cipherVideo, "r", encoding="utf-8") as fi:
+        content = ast.literal_eval(fi.read())
+    
+    decodedContent = decode(content)
+    decodedContentBin = base64.b64decode(decodedContent)
+
+    with open("../saved_files/temps/temp.mp4", "wb") as f:
+        f.write(decodedContentBin)
+
+    return "../saved_files/temps/temp.mp4"
 
 
 margin = """<div style="margin-top: 150px;"></div>"""
@@ -206,13 +206,12 @@ with gr.Blocks(title="Distro50") as demo:
     # VIDEO
 
     videoInputEnc = gr.Video(label="Plain Video")
-    videoOutputEnc = gr.Textbox(label="Cipher Video")
     videoEncodeButton = gr.Button("Encode Video")
-    videoEncodeButton.click(encVideo, inputs=videoInputEnc, outputs=videoOutputEnc)
+    videoEncodeButton.click(encVideo, inputs=videoInputEnc)
 
     gr.Markdown(margin)
 
-    videoInputDec = gr.Textbox(label="Cipher Video")
+    videoInputDec = gr.UploadButton(label="Cipher Video", type="filepath")
     videoOutputDec = gr.Video(label="Plain Video")
     videoDecodeButton = gr.Button("Decode Video")
     videoDecodeButton.click(decVideo, inputs=videoInputDec, outputs=videoOutputDec)
