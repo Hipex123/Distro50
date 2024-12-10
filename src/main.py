@@ -1,5 +1,5 @@
 from libs.distro250ls import encode, decode
-import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, datetime
+import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, datetime, time
 from PIL import Image
 import gradio as gr
 
@@ -38,6 +38,7 @@ def decodeUI(ciphertext: str):
 
 def encodeImage(image: Image.Image, width=300, height=300):
     currDatetime = datetime.datetime.now()
+    start = time.time()
     print("Encoding Image...")
 
     image.thumbnail((width, height), Image.Resampling.NEAREST)
@@ -48,7 +49,7 @@ def encodeImage(image: Image.Image, width=300, height=300):
     with open(f"../saved_files/cipher/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(encoded_image)))
 
-    print("Image Encoded!")
+    print(f"Image Encoded | {round(time.time()-start, 1)}s")
     print("------------------")
 
 def decodeImage(file):
@@ -77,6 +78,7 @@ def generateQRcode(link):
 
 def encFile(plainFile):
     currDatetime = datetime.datetime.now()
+    start = time.time()
     print("Encoding File...")
 
     with open(plainFile, "r", encoding="utf-8") as fi:
@@ -85,7 +87,7 @@ def encFile(plainFile):
     with open(f"../saved_files/cipher/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(content)))
 
-    print("File Encoded!")
+    print(f"File Encoded | {round(time.time()-start, 1)}s")
     print("------------------")
 
 def decFile(cipherFile):
@@ -101,6 +103,7 @@ def decFile(cipherFile):
 
 def encAudio(plainFile):
     currDatetime = datetime.datetime.now()
+    start = time.time()
     print("Encoding Audio...")
 
     with open(plainFile, "rb") as fi:
@@ -111,7 +114,7 @@ def encAudio(plainFile):
     with open(f"../saved_files/cipher/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(encodedContent)))
     
-    print("Audio Encoded!")
+    print(f"Audio Encoded | {round(time.time()-start, 1)}s")
     print("------------------")
 
 def decAudio(chiperFile):
@@ -132,6 +135,7 @@ def decAudio(chiperFile):
 
 def encVideo(plainVideo):
     currDatetime = datetime.datetime.now()
+    start = time.time()
     print("Encoding Video...")
 
     with open(plainVideo, "rb") as fi:
@@ -142,7 +146,7 @@ def encVideo(plainVideo):
     with open(f"../saved_files/cipher/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(encodedContent)))
 
-    print("Video Encoded!")
+    print(f"Video Encoded | {round(time.time()-start, 1)}s")
     print("------------------")
 
 def decVideo(cipherVideo):
