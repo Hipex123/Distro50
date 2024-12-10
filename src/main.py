@@ -3,30 +3,30 @@ import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, dateti
 from PIL import Image
 import gradio as gr
 
-isMarked = -1
-
 decodedFile: str = ""
 decodedAudio: bytes = b""
 decodedImage: Image = Image.new("RGB", (1, 1), (0, 0, 0))
 decodedVideo: bytes = b""
 
-def save():
+def saveFile():
     currDatetime = datetime.datetime.now()
+    with open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
+        f.write(decodedFile)
 
-    match isMarked:
-        case 0: 
-            with open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
-                f.write(decodedFile)
-        case 1: 
-            with open(f"../saved_files/plain/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp3", "wb") as f:
-                f.write(decodedAudio)
-        case 2: 
-            decodedImage.save(f"../saved_files/plain/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
-        case 3: 
-            with open(f"../saved_files/plain/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp4", "wb") as f:
-                f.write(decodedVideo)
-        case _:
-            print("File not decoded.")
+def saveAudio():
+    currDatetime = datetime.datetime.now()
+    with open(f"../saved_files/plain/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp3", "wb") as f:
+        f.write(decodedAudio)
+
+def saveImage():
+    currDatetime = datetime.datetime.now()
+    decodedImage.save(f"../saved_files/plain/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
+
+def saveVideo():
+    currDatetime = datetime.datetime.now()
+    with open(f"../saved_files/plain/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp4", "wb") as f:
+        f.write(decodedVideo)
+
 
 def encodeUI(plaintext: str):
     return encode(plaintext)
@@ -52,7 +52,7 @@ def encodeImage(image: Image.Image, width=300, height=300):
     print("------------------")
 
 def decodeImage(file):
-    global decodedImage, isMarked
+    global decodedImage
 
     with open(file, "r", encoding="utf-8") as f:
         content = f.read()
@@ -62,7 +62,6 @@ def decodeImage(file):
     decoded_image_data = base64.b64decode(decodedImageText)
     image = Image.open(io.BytesIO(decoded_image_data))
     decodedImage = image
-    isMarked = 2
     return image
 
 
@@ -90,14 +89,13 @@ def encFile(plainFile):
     print("------------------")
 
 def decFile(cipherFile):
-    global decodedFile, isMarked
+    global decodedFile
 
     with open(cipherFile, "r", encoding="utf-8") as f:
         content = f.read()
 
     plainFile = decode(ast.literal_eval(content))
     decodedFile = plainFile
-    isMarked = 0
     return plainFile
 
 
@@ -117,7 +115,7 @@ def encAudio(plainFile):
     print("------------------")
 
 def decAudio(chiperFile):
-    global decodedAudio, isMarked
+    global decodedAudio
 
     with open(chiperFile, "r", encoding="utf-8") as fi:
         contents = ast.literal_eval(fi.read())
@@ -125,7 +123,6 @@ def decAudio(chiperFile):
     decodedContent = decode(contents)
     decodedContentBin = base64.b64decode(decodedContent)
     decodedAudio = decodedContentBin
-    isMarked = 1
 
     with open("../saved_files/temps/temp.mp3", "wb") as f:
         f.write(decodedContentBin)
@@ -149,7 +146,7 @@ def encVideo(plainVideo):
     print("------------------")
 
 def decVideo(cipherVideo):
-    global decodedVideo, isMarked
+    global decodedVideo
 
     with open(cipherVideo, "r", encoding="utf-8") as fi:
         content = ast.literal_eval(fi.read())
@@ -157,7 +154,6 @@ def decVideo(cipherVideo):
     decodedContent = decode(content)
     decodedContentBin = base64.b64decode(decodedContent)
     decodedVideo = decodedContentBin
-    isMarked = 3
 
     with open("../saved_files/temps/temp.mp4", "wb") as f:
         f.write(decodedContentBin)
@@ -213,7 +209,7 @@ with gr.Blocks(title="Distro50") as demo:
     fileDecButtonSave = gr.Button("Save Plain File")
     outputFileDec = gr.Textbox(label="Plain File")
     fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=outputFileDec)
-    fileDecButtonSave.click(fn=save)
+    fileDecButtonSave.click(fn=saveFile)
     
     gr.Markdown(margin)
 
@@ -237,7 +233,7 @@ with gr.Blocks(title="Distro50") as demo:
     audioDecButtonSave = gr.Button("Save Plain Audio")
     audioOutputDec = gr.Audio(label="Plain Audio")
     audioDecButton.click(fn=decAudio, inputs=audioInputDec, outputs=audioOutputDec)
-    audioDecButtonSave.click(fn=save)
+    audioDecButtonSave.click(fn=saveAudio)
 
     gr.Markdown(margin)
 
@@ -266,7 +262,7 @@ with gr.Blocks(title="Distro50") as demo:
     imgEncodeButtonSave = gr.Button("Save Plain Image")
     imgOutputDec = gr.Image(type="pil", label="Plain Image")
     imgEncodeButton.click(decodeImage, inputs=imgInputDec, outputs=imgOutputDec)
-    imgEncodeButtonSave.click(save)
+    imgEncodeButtonSave.click(saveImage)
 
     gr.Markdown(margin)
 
@@ -290,7 +286,7 @@ with gr.Blocks(title="Distro50") as demo:
     videoDecodeButtonSave = gr.Button("Save Plain Video")
     videoOutputDec = gr.Video(label="Plain Video")
     videoDecodeButton.click(decVideo, inputs=videoInputDec, outputs=videoOutputDec)
-    videoDecodeButtonSave.click(save)
+    videoDecodeButtonSave.click(saveVideo)
 
     gr.Markdown(margin)
 
