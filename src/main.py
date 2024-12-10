@@ -3,6 +3,31 @@ import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, dateti
 from PIL import Image
 import gradio as gr
 
+isMarked = -1
+
+decodedFile: str = ""
+decodedAudio: bytes = b""
+decodedImage: Image = Image.new("RGB", (1, 1), (0, 0, 0))
+decodedVideo: bytes = b""
+
+def save():
+    currDatetime = datetime.datetime.now()
+
+    match isMarked:
+        case 0: 
+            with open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
+                f.write(decodedFile)
+        case 1: 
+            with open(f"../saved_files/plain/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp3", "wb") as f:
+                f.write(decodedAudio)
+        case 2: 
+            decodedImage.save(f"../saved_files/plain/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
+        case 3: 
+            with open(f"../saved_files/plain/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp4", "wb") as f:
+                f.write(decodedVideo)
+        case _:
+            print("File not decoded.")
+
 def encodeUI(plaintext: str):
     return encode(plaintext)
 
@@ -13,6 +38,7 @@ def decodeUI(ciphertext: str):
 
 def encodeImage(image: Image.Image, width=300, height=300):
     currDatetime = datetime.datetime.now()
+    print("Encoding Image...")
 
     image.thumbnail((width, height), Image.Resampling.NEAREST)
     img_bytes = io.BytesIO()
@@ -22,20 +48,12 @@ def encodeImage(image: Image.Image, width=300, height=300):
     with open(f"../saved_files/cipher/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(encoded_image)))
 
-def decodeImageSave(file):
-    currDatetime = datetime.datetime.now()
-
-    with open(file, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    encodedImageList = ast.literal_eval(content)
-    decodedImageText = decode(encodedImageList)
-    decoded_image_data = base64.b64decode(decodedImageText)
-    image = Image.open(io.BytesIO(decoded_image_data))
-
-    image.save(f"../saved_files/plain/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
+    print("Image Encoded!")
+    print("------------------")
 
 def decodeImage(file):
+    global decodedImage, isMarked
+
     with open(file, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -43,7 +61,8 @@ def decodeImage(file):
     decodedImageText = decode(encodedImageList)
     decoded_image_data = base64.b64decode(decodedImageText)
     image = Image.open(io.BytesIO(decoded_image_data))
-
+    decodedImage = image
+    isMarked = 2
     return image
 
 
@@ -59,6 +78,7 @@ def generateQRcode(link):
 
 def encFile(plainFile):
     currDatetime = datetime.datetime.now()
+    print("Encoding File...")
 
     with open(plainFile, "r", encoding="utf-8") as fi:
         content = fi.read()
@@ -66,23 +86,24 @@ def encFile(plainFile):
     with open(f"../saved_files/cipher/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(content)))
 
-def decFileSave(cipherFile):
-    currDatetime = datetime.datetime.now()
-
-    with open(cipherFile, "r", encoding="utf-8") as fi:
-        content = fi.read()
-
-    with open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
-        f.write(decode(ast.literal_eval(content)))
+    print("File Encoded!")
+    print("------------------")
 
 def decFile(cipherFile):
+    global decodedFile, isMarked
+
     with open(cipherFile, "r", encoding="utf-8") as f:
         content = f.read()
-    return decode(ast.literal_eval(content))
+
+    plainFile = decode(ast.literal_eval(content))
+    decodedFile = plainFile
+    isMarked = 0
+    return plainFile
 
 
 def encAudio(plainFile):
     currDatetime = datetime.datetime.now()
+    print("Encoding Audio...")
 
     with open(plainFile, "rb") as fi:
         content = fi.read()
@@ -91,23 +112,30 @@ def encAudio(plainFile):
 
     with open(f"../saved_files/cipher/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(encodedContent)))
+    
+    print("Audio Encoded!")
+    print("------------------")
 
 def decAudio(chiperFile):
+    global decodedAudio, isMarked
+
     with open(chiperFile, "r", encoding="utf-8") as fi:
         contents = ast.literal_eval(fi.read())
 
     decodedContent = decode(contents)
     decodedContentBin = base64.b64decode(decodedContent)
+    decodedAudio = decodedContentBin
+    isMarked = 1
 
     with open("../saved_files/temps/temp.mp3", "wb") as f:
         f.write(decodedContentBin)
-    f.close()
 
     return "../saved_files/temps/temp.mp3"
 
 
 def encVideo(plainVideo):
     currDatetime = datetime.datetime.now()
+    print("Encoding Video...")
 
     with open(plainVideo, "rb") as fi:
         content = fi.read()
@@ -117,12 +145,19 @@ def encVideo(plainVideo):
     with open(f"../saved_files/cipher/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
         f.write(str(encode(encodedContent)))
 
+    print("Video Encoded!")
+    print("------------------")
+
 def decVideo(cipherVideo):
+    global decodedVideo, isMarked
+
     with open(cipherVideo, "r", encoding="utf-8") as fi:
         content = ast.literal_eval(fi.read())
     
     decodedContent = decode(content)
     decodedContentBin = base64.b64decode(decodedContent)
+    decodedVideo = decodedContentBin
+    isMarked = 3
 
     with open("../saved_files/temps/temp.mp4", "wb") as f:
         f.write(decodedContentBin)
@@ -135,6 +170,14 @@ callback = gr.CSVLogger()
 
 with gr.Blocks(title="Distro50") as demo:
     # TEXT
+
+    gr.Markdown(
+        """
+            <h1>Text</h1>
+            <div style="height:2px; background: gray;"/>
+        """
+    )
+
     inputEnc = gr.Textbox(label="Plaintext")
     outputEnc = gr.Textbox(label="Ciphertext")
     encodeButton = gr.Button("Encode Text")
@@ -151,22 +194,37 @@ with gr.Blocks(title="Distro50") as demo:
 
     # FILES
 
+    gr.Markdown(
+        """
+            <h1>Files</h1>
+            <div style="height:2px; background: gray;"/>
+        """
+    )
+
     inputFileEnc = gr.UploadButton(label="Upload Plain File", type="filepath")
     fileEncButton = gr.Button("Encode File")
     fileEncButton.click(fn=encFile, inputs=inputFileEnc)
 
     gr.Markdown(margin)
+    tempFile = gr.File(visible=False)
 
     inputFileDec = gr.UploadButton(label="Upload Cipher File", type="filepath")
     fileDecButton = gr.Button("Decode File")
     fileDecButtonSave = gr.Button("Save Plain File")
     outputFileDec = gr.Textbox(label="Plain File")
     fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=outputFileDec)
-    fileDecButtonSave.click(fn=decFileSave, inputs=inputFileDec)
+    fileDecButtonSave.click(fn=save)
     
     gr.Markdown(margin)
 
     # AUDIO
+
+    gr.Markdown(
+        """
+            <h1>Audio</h1>
+            <div style="height:2px; background: gray;"/>
+        """
+    )
 
     audioInputEnc = gr.Audio(label="Upload Plain Audio", type="filepath")
     audioEncButton = gr.Button("Encode Audio")
@@ -175,13 +233,22 @@ with gr.Blocks(title="Distro50") as demo:
     gr.Markdown(margin)
 
     audioInputDec = gr.UploadButton(label="Upload Cipher Audio", type="filepath")
-    audioOutputDec = gr.Audio(label="Plain Audio")
     audioDecButton = gr.Button("Decode Audio")
+    audioDecButtonSave = gr.Button("Save Plain Audio")
+    audioOutputDec = gr.Audio(label="Plain Audio")
     audioDecButton.click(fn=decAudio, inputs=audioInputDec, outputs=audioOutputDec)
+    audioDecButtonSave.click(fn=save)
 
     gr.Markdown(margin)
 
     # IMAGES
+
+    gr.Markdown(
+        """
+            <h1>Images</h1>
+            <div style="height:2px; background: gray;"/>
+        """
+    )
 
     imageSizeW = gr.Number(label="Image Width")
     imageSizeH = gr.Number(label="Image Height")
@@ -196,14 +263,21 @@ with gr.Blocks(title="Distro50") as demo:
 
     imgInputDec = gr.UploadButton(label="Upload Cipher Image", type="filepath")
     imgEncodeButton = gr.Button("Decode Image")
-    imgOutputDec = gr.Image(type="pil", label="Plain Image")
     imgEncodeButtonSave = gr.Button("Save Plain Image")
+    imgOutputDec = gr.Image(type="pil", label="Plain Image")
     imgEncodeButton.click(decodeImage, inputs=imgInputDec, outputs=imgOutputDec)
-    imgEncodeButtonSave.click(decodeImageSave, inputs=imgInputDec)
+    imgEncodeButtonSave.click(save)
 
     gr.Markdown(margin)
 
     # VIDEO
+
+    gr.Markdown(
+        """
+            <h1>Video</h1>
+            <div style="height:2px; background: gray;"/>
+        """
+    )
 
     videoInputEnc = gr.Video(label="Plain Video")
     videoEncodeButton = gr.Button("Encode Video")
@@ -212,9 +286,13 @@ with gr.Blocks(title="Distro50") as demo:
     gr.Markdown(margin)
 
     videoInputDec = gr.UploadButton(label="Cipher Video", type="filepath")
-    videoOutputDec = gr.Video(label="Plain Video")
     videoDecodeButton = gr.Button("Decode Video")
+    videoDecodeButtonSave = gr.Button("Save Plain Video")
+    videoOutputDec = gr.Video(label="Plain Video")
     videoDecodeButton.click(decVideo, inputs=videoInputDec, outputs=videoOutputDec)
+    videoDecodeButtonSave.click(save)
+
+    gr.Markdown(margin)
 
     btnSaveData = gr.Button("Save Data")
 
