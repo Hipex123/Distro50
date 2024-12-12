@@ -365,7 +365,7 @@ if args.run and args.share:
     print(output)
     for line in output.splitlines():
         if "Running on public URL:" in line:
-            publicUrl = line[23:]
+            publicUrl = line[25:]
 
     webbrowser.open(publicUrl)
     print("Press any key to shutdown server...")
