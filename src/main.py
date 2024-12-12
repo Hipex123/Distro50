@@ -1,59 +1,69 @@
 from libs.distro250ls import encode, decode
-import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, datetime, time
+import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, datetime, time, tempfile, os
 from PIL import Image
 import gradio as gr
 
-decodedFile: str = ""
-decodedAudio: bytes = b""
-decodedImage: Image = Image.new("RGB", (1, 1), (0, 0, 0))
-decodedVideo: bytes = b""
+tempHolder: str = ""
 
-def saveFile():
-    currDatetime = datetime.datetime.now()
-    with open(f"../saved_files/plain/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
-        f.write(decodedFile)
+def removeTempFile():
+    if tempHolder != "":
+        try:
+            os.remove(tempHolder)
+            print("------------------")
+            print(f"Deleted temp file: {tempHolder}")
+        except OSError as e:
+            print("------------------")
+            print(f"Error deleting temp file: {e}")
 
-def saveAudio():
-    currDatetime = datetime.datetime.now()
-    with open(f"../saved_files/plain/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp3", "wb") as f:
-        f.write(decodedAudio)
+def createTempEncFile(buffer):
+    global tempHolder
 
-def saveImage():
-    currDatetime = datetime.datetime.now()
-    decodedImage.save(f"../saved_files/plain/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.png")
+    removeTempFile()
 
-def saveVideo():
-    currDatetime = datetime.datetime.now()
-    with open(f"../saved_files/plain/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.mp4", "wb") as f:
-        f.write(decodedVideo)
+    tempFile = tempfile.NamedTemporaryFile(delete=False, suffix=".txt")
+    tempFile.write(str(encode(buffer)).encode("utf-8"))
+    tempFile.close()
 
 
-def encodeUI(plaintext: str):
+    tempHolder = tempFile.name
+    return tempHolder
+
+def createTempDecFile(buffer, suffixP: str, special: any = 0):
+    global tempHolder
+
+    removeTempFile()
+
+    tempFile = tempfile.NamedTemporaryFile(delete=False, suffix=suffixP)
+    tempFile.write(buffer)
+    tempFile.close()
+
+    tempHolder = tempFile.name
+
+    if special == 0:
+        return tempHolder, tempHolder
+    else:
+        return special, tempHolder
+
+
+def encodeUI(plaintext):
     return encode(plaintext)
 
-def decodeUI(ciphertext: str):
+def decodeUI(ciphertext):
     encodedList = ast.literal_eval(ciphertext)
     return decode(encodedList)
 
 
 def encodeImage(image: Image.Image, width=300, height=300):
-    currDatetime = datetime.datetime.now()
-    start = time.time()
-    print("Encoding Image...")
-
     image.thumbnail((width, height), Image.Resampling.NEAREST)
-    img_bytes = io.BytesIO()
-    image.save(img_bytes, format="PNG")
-    encoded_image = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
 
-    with open(f"../saved_files/cipher/images/image-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
-        f.write(str(encode(encoded_image)))
+    imageBytes = io.BytesIO()
+    image.save(imageBytes, format="PNG")
+    encodedImage = base64.b64encode(imageBytes.getvalue()).decode("utf-8")
 
-    print(f"Image Encoded | {round(time.time()-start, 1)}s")
-    print("------------------")
+    return createTempEncFile(encodedImage)
 
 def decodeImage(file):
-    global decodedImage
+    global tempHolder
 
     with open(file, "r", encoding="utf-8") as f:
         content = f.read()
@@ -62,8 +72,14 @@ def decodeImage(file):
     decodedImageText = decode(encodedImageList)
     decoded_image_data = base64.b64decode(decodedImageText)
     image = Image.open(io.BytesIO(decoded_image_data))
-    decodedImage = image
-    return image
+
+    removeTempFile()
+    tempFile = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+    image.save(tempFile, format="PNG")
+    tempFile.close()
+
+    tempHolder = tempFile.name
+    return image, tempHolder
 
 
 def generateQRcode(link):
@@ -77,93 +93,75 @@ def generateQRcode(link):
 
 
 def encFile(plainFile):
-    currDatetime = datetime.datetime.now()
-    start = time.time()
-    print("Encoding File...")
-
-    with open(plainFile, "r", encoding="utf-8") as fi:
-        content = fi.read()
-
-    with open(f"../saved_files/cipher/files/file-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
-        f.write(str(encode(content)))
-
-    print(f"File Encoded | {round(time.time()-start, 1)}s")
-    print("------------------")
-
-def decFile(cipherFile):
-    global decodedFile
-
-    with open(cipherFile, "r", encoding="utf-8") as f:
+    with open(plainFile, "r", encoding="utf-8") as f:
         content = f.read()
 
+    return createTempEncFile(content)
+
+def decFile(cipherFile):
+    with open(cipherFile, "r", encoding="utf-8") as f:
+        content = f.read()
     plainFile = decode(ast.literal_eval(content))
-    decodedFile = plainFile
-    return plainFile
+
+    return createTempDecFile(plainFile.encode("utf-8"), ".txt", plainFile)
 
 
 def encAudio(plainFile):
-    currDatetime = datetime.datetime.now()
-    start = time.time()
-    print("Encoding Audio...")
-
-    with open(plainFile, "rb") as fi:
-        content = fi.read()
+    with open(plainFile, "rb") as f:
+        content = f.read()
 
     encodedContent = base64.b64encode(content).decode("utf-8")
 
-    with open(f"../saved_files/cipher/audio/audio-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
-        f.write(str(encode(encodedContent)))
-    
-    print(f"Audio Encoded | {round(time.time()-start, 1)}s")
-    print("------------------")
+    return createTempEncFile(encodedContent)
 
 def decAudio(chiperFile):
-    global decodedAudio
-
-    with open(chiperFile, "r", encoding="utf-8") as fi:
-        contents = ast.literal_eval(fi.read())
+    with open(chiperFile, "r", encoding="utf-8") as f:
+        contents = ast.literal_eval(f.read())
 
     decodedContent = decode(contents)
     decodedContentBin = base64.b64decode(decodedContent)
-    decodedAudio = decodedContentBin
 
-    with open("../saved_files/temps/temp.mp3", "wb") as f:
-        f.write(decodedContentBin)
-
-    return "../saved_files/temps/temp.mp3"
+    return createTempDecFile(decodedContentBin, ".mp3")
 
 
 def encVideo(plainVideo):
-    currDatetime = datetime.datetime.now()
-    start = time.time()
-    print("Encoding Video...")
-
-    with open(plainVideo, "rb") as fi:
-        content = fi.read()
+    with open(plainVideo, "rb") as f:
+        content = f.read()
     
-    encodedContent = base64.b64encode(content).decode("utf-8")
+    contentStr = base64.b64encode(content).decode("utf-8")
 
-    with open(f"../saved_files/cipher/video/video-{currDatetime.strftime('%Y-%m-%d_%H-%M-%S')}.txt", "w", encoding="utf-8") as f:
-        f.write(str(encode(encodedContent)))
-
-    print(f"Video Encoded | {round(time.time()-start, 1)}s")
-    print("------------------")
+    return createTempEncFile(contentStr)
 
 def decVideo(cipherVideo):
-    global decodedVideo
-
-    with open(cipherVideo, "r", encoding="utf-8") as fi:
-        content = ast.literal_eval(fi.read())
+    with open(cipherVideo, "r", encoding="utf-8") as f:
+        content = ast.literal_eval(f.read())
     
     decodedContent = decode(content)
     decodedContentBin = base64.b64decode(decodedContent)
-    decodedVideo = decodedContentBin
 
-    with open("../saved_files/temps/temp.mp4", "wb") as f:
-        f.write(decodedContentBin)
+    return createTempDecFile(decodedContentBin, ".mp4")
 
-    return "../saved_files/temps/temp.mp4"
+def openPublicUrl():
+    with contextlib.redirect_stdout(buffer):
+        demo.launch(share=True, prevent_thread_lock=True)
 
+    output = buffer.getvalue()
+    print(output)
+    for line in output.splitlines():
+        if "Running on public URL:" in line:
+            linkIndex = line.find("https://")
+            publicUrl = line[linkIndex:]
+            print(line)
+
+    webbrowser.open(publicUrl)
+    print("Press any key to shutdown server...")
+    msvcrt.getch()
+
+def openLocalUrl():
+    demo.launch(prevent_thread_lock=True)
+    webbrowser.open("http://127.0.0.1:7860/")
+    print("Press any key to shutdown server...")
+    msvcrt.getch()
 
 margin = """<div style="margin-top: 150px;"></div>"""
 callback = gr.CSVLogger()
@@ -203,17 +201,14 @@ with gr.Blocks(title="Distro50") as demo:
 
     inputFileEnc = gr.UploadButton(label="Upload Plain File", type="filepath")
     fileEncButton = gr.Button("Encode File")
-    fileEncButton.click(fn=encFile, inputs=inputFileEnc)
+    fileEncButton.click(fn=encFile, inputs=inputFileEnc, outputs=gr.File())
 
     gr.Markdown(margin)
-    tempFile = gr.File(visible=False)
 
     inputFileDec = gr.UploadButton(label="Upload Cipher File", type="filepath")
     fileDecButton = gr.Button("Decode File")
-    fileDecButtonSave = gr.Button("Save Plain File")
     outputFileDec = gr.Textbox(label="Plain File")
-    fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=outputFileDec)
-    fileDecButtonSave.click(fn=saveFile)
+    fileDecButton.click(fn=decFile, inputs=inputFileDec, outputs=[outputFileDec, gr.File()])
     
     gr.Markdown(margin)
 
@@ -228,16 +223,14 @@ with gr.Blocks(title="Distro50") as demo:
 
     audioInputEnc = gr.Audio(label="Upload Plain Audio", type="filepath")
     audioEncButton = gr.Button("Encode Audio")
-    audioEncButton.click(fn=encAudio, inputs=audioInputEnc)
+    audioEncButton.click(fn=encAudio, inputs=audioInputEnc, outputs=gr.File())
 
     gr.Markdown(margin)
 
     audioInputDec = gr.UploadButton(label="Upload Cipher Audio", type="filepath")
     audioDecButton = gr.Button("Decode Audio")
-    audioDecButtonSave = gr.Button("Save Plain Audio")
     audioOutputDec = gr.Audio(label="Plain Audio")
-    audioDecButton.click(fn=decAudio, inputs=audioInputDec, outputs=audioOutputDec)
-    audioDecButtonSave.click(fn=saveAudio)
+    audioDecButton.click(fn=decAudio, inputs=audioInputDec, outputs=[audioOutputDec, gr.File()])
 
     gr.Markdown(margin)
 
@@ -256,17 +249,15 @@ with gr.Blocks(title="Distro50") as demo:
     imgInputEnc = gr.Image(type="pil", label="Plain Image")
     imgEncodeButton = gr.Button("Encode Image")
     imgEncodeButton.click(
-        encodeImage, inputs=[imgInputEnc, imageSizeW, imageSizeH]
+        encodeImage, inputs=[imgInputEnc, imageSizeW, imageSizeH], outputs=gr.File()
     )
 
     gr.Markdown(margin)
 
     imgInputDec = gr.UploadButton(label="Upload Cipher Image", type="filepath")
-    imgEncodeButton = gr.Button("Decode Image")
-    imgEncodeButtonSave = gr.Button("Save Plain Image")
+    imgDecodeButton = gr.Button("Decode Image")
     imgOutputDec = gr.Image(type="pil", label="Plain Image")
-    imgEncodeButton.click(decodeImage, inputs=imgInputDec, outputs=imgOutputDec)
-    imgEncodeButtonSave.click(saveImage)
+    imgDecodeButton.click(decodeImage, inputs=imgInputDec, outputs=[imgOutputDec, gr.File()])
 
     gr.Markdown(margin)
 
@@ -281,20 +272,18 @@ with gr.Blocks(title="Distro50") as demo:
 
     videoInputEnc = gr.Video(label="Plain Video")
     videoEncodeButton = gr.Button("Encode Video")
-    videoEncodeButton.click(encVideo, inputs=videoInputEnc)
+    videoEncodeButton.click(encVideo, inputs=videoInputEnc, outputs=gr.File())
 
     gr.Markdown(margin)
 
     videoInputDec = gr.UploadButton(label="Cipher Video", type="filepath")
     videoDecodeButton = gr.Button("Decode Video")
-    videoDecodeButtonSave = gr.Button("Save Plain Video")
     videoOutputDec = gr.Video(label="Plain Video")
-    videoDecodeButton.click(decVideo, inputs=videoInputDec, outputs=videoOutputDec)
-    videoDecodeButtonSave.click(saveVideo)
+    videoDecodeButton.click(decVideo, inputs=videoInputDec, outputs=[videoOutputDec, gr.File()])
 
     gr.Markdown(margin)
 
-    btnSaveData = gr.Button("Save Data")
+    btnSaveData = gr.Button("Save Data To The Server")
 
     callback.setup(
         [
@@ -358,26 +347,10 @@ args = parser.parse_args()
 buffer = io.StringIO()
 
 if args.run and args.share:
-    with contextlib.redirect_stdout(buffer):
-        demo.launch(share=True, prevent_thread_lock=True)
-
-    output = buffer.getvalue()
-    print(output)
-    for line in output.splitlines():
-        if "Running on public URL:" in line:
-            publicUrl = line[25:]
-
-    webbrowser.open(publicUrl)
-    print("Press any key to shutdown server...")
-    msvcrt.getch()
+    openPublicUrl()
 
 elif args.run and not args.share:
-    demo.launch(prevent_thread_lock=True)
-    webbrowser.open("http://127.0.0.1:7860/")
-    print("Press any key to shutdown server...")
-    msvcrt.getch()
+    openLocalUrl()
     
 elif args.share and not args.run:
-    print("No run flag specified.")
-    print("Quitting...")
-    exit(1)
+    openPublicUrl()
