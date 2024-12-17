@@ -1,9 +1,11 @@
 from libs.distro250ls import encode, decode
-import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, datetime, time, tempfile, os
+import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, tempfile, os, lzma
 from PIL import Image
 import gradio as gr
 
 tempHolder: str = ""
+compression = False
+decompression = False
 
 def removeTempFile():
     if tempHolder != "":
@@ -15,18 +17,27 @@ def removeTempFile():
             print("------------------")
             print(f"Error deleting temp file: {e}")
 
+import tempfile
+import lzma
+
 def createTempEncFile(buffer):
-    global tempHolder
+    global tempHolder, compression
+
+    writable = str(encode(buffer)).encode("utf-8")
+
+    if compression:
+        compressor = lzma.LZMACompressor(preset=9)
+        writable = compressor.compress(writable) + compressor.flush()
 
     removeTempFile()
 
     tempFile = tempfile.NamedTemporaryFile(delete=False, suffix=".txt")
-    tempFile.write(str(encode(buffer)).encode("utf-8"))
+    tempFile.write(writable)
     tempFile.close()
-
 
     tempHolder = tempFile.name
     return tempHolder
+
 
 def createTempDecFile(buffer, suffixP: str, special: any = 0):
     global tempHolder
@@ -45,6 +56,15 @@ def createTempDecFile(buffer, suffixP: str, special: any = 0):
         return special, tempHolder
 
 
+def switchLzmaComp():
+    global compression
+    compression = not compression
+
+def switchLzmaDecomp():
+    global decompression
+    decompression = not decompression
+
+
 def encodeUI(plaintext):
     return encode(plaintext)
 
@@ -53,20 +73,31 @@ def decodeUI(ciphertext):
     return decode(encodedList)
 
 
-def encodeImage(image: Image.Image, width=300, height=300):
-    image.thumbnail((width, height), Image.Resampling.NEAREST)
+def encodeImage(plainImage: Image.Image, width=300, height=300):
+    plainImage.thumbnail((width, height), Image.Resampling.NEAREST)
 
     imageBytes = io.BytesIO()
-    image.save(imageBytes, format="PNG")
+    plainImage.save(imageBytes, format="PNG")
     encodedImage = base64.b64encode(imageBytes.getvalue()).decode("utf-8")
 
     return createTempEncFile(encodedImage)
 
-def decodeImage(file):
-    global tempHolder
+def decodeImage(cipherImage):
+    global tempHolder, decompression
 
-    with open(file, "r", encoding="utf-8") as f:
-        content = f.read()
+    content = ""
+
+    if decompression:
+        decompressor = lzma.LZMADecompressor()
+
+        with open(cipherImage, "rb") as f:
+            content = f.read()
+
+        decompressedContent = decompressor.decompress(content)
+        content = decompressedContent.decode("utf-8")
+    else:
+        with open(cipherImage, "r", encoding="utf-8") as f:
+            content = f.read()
 
     encodedImageList = ast.literal_eval(content)
     decodedImageText = decode(encodedImageList)
@@ -99,27 +130,52 @@ def encFile(plainFile):
     return createTempEncFile(content)
 
 def decFile(cipherFile):
-    with open(cipherFile, "r", encoding="utf-8") as f:
-        content = f.read()
-    plainFile = decode(ast.literal_eval(content))
+    global decompression
+    plainFile = ""
+
+    if decompression:
+        decompressor = lzma.LZMADecompressor()
+        with open(cipherFile, "rb") as f:
+            content = f.read()
+
+        decompressedFile = decompressor.decompress(content)
+        plainFile = decode(ast.literal_eval(decompressedFile.decode("utf-8")))
+
+    else:
+        with open(cipherFile, "r", encoding="utf-8") as f:
+            content = f.read()
+        plainFile = decode(ast.literal_eval(content))
 
     return createTempDecFile(plainFile.encode("utf-8"), ".txt", plainFile)
 
 
-def encAudio(plainFile):
-    with open(plainFile, "rb") as f:
+def encAudio(chiperAudio):
+    with open(chiperAudio, "rb") as f:
         content = f.read()
 
     encodedContent = base64.b64encode(content).decode("utf-8")
 
     return createTempEncFile(encodedContent)
 
-def decAudio(chiperFile):
-    with open(chiperFile, "r", encoding="utf-8") as f:
-        contents = ast.literal_eval(f.read())
+def decAudio(chiperAudio):
+    global decompression
+    decodedContentBin = ""
 
-    decodedContent = decode(contents)
-    decodedContentBin = base64.b64decode(decodedContent)
+    if decompression:
+        decompressor = lzma.LZMADecompressor()
+
+        with open(chiperAudio, "rb") as f:
+            content = f.read()
+
+        decompressedContent = decompressor.decompress(content)
+        decodedContent = decode(ast.literal_eval(decompressedContent.decode("utf-8")))
+        decodedContentBin = base64.b64decode(decodedContent)
+    else:
+        with open(chiperAudio, "r", encoding="utf-8") as f:
+            content = ast.literal_eval(f.read())
+
+        decodedContent = decode(content)
+        decodedContentBin = base64.b64decode(decodedContent)
 
     return createTempDecFile(decodedContentBin, ".mp3")
 
@@ -133,11 +189,24 @@ def encVideo(plainVideo):
     return createTempEncFile(contentStr)
 
 def decVideo(cipherVideo):
-    with open(cipherVideo, "r", encoding="utf-8") as f:
-        content = ast.literal_eval(f.read())
-    
-    decodedContent = decode(content)
-    decodedContentBin = base64.b64decode(decodedContent)
+    global decompression
+    decodedContentBin = ""
+
+    if decompression:
+        decompressor = lzma.LZMADecompressor()
+
+        with open(cipherVideo, "rb") as f:
+            content = f.read()
+
+        decompressedContent = decompressor.decompress(content)
+        decodedContent = decode(ast.literal_eval(decompressedContent.decode("utf-8")))
+        decodedContentBin = base64.b64decode(decodedContent)
+    else:
+        with open(cipherVideo, "r", encoding="utf-8") as f:
+            content = ast.literal_eval(f.read())
+        
+        decodedContent = decode(content)
+        decodedContentBin = base64.b64decode(decodedContent)
 
     return createTempDecFile(decodedContentBin, ".mp4")
 
@@ -167,6 +236,21 @@ margin = """<div style="margin-top: 150px;"></div>"""
 callback = gr.CSVLogger()
 
 with gr.Blocks(title="Distro50") as demo:
+    # COMPRESSION/DECOMPRESSION
+    gr.Markdown(
+        """
+            <h2>Compression options</h2>
+        """
+    )
+
+    lzmaCompBox = gr.Checkbox(label="Use LZMA compression")
+    lzmaCompBox.input(switchLzmaComp)
+
+    lzmaDecompBox = gr.Checkbox(label="Use LZMA decompression")
+    lzmaDecompBox.input(switchLzmaDecomp)
+
+    gr.Markdown(margin)
+
     # TEXT
 
     gr.Markdown(
