@@ -1,5 +1,5 @@
 from libs.distro250ls import encode, decode
-import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, datetime, time, tempfile, os
+import argparse, contextlib, webbrowser, base64, io, ast, msvcrt, qrcode, tempfile, os
 from PIL import Image
 import gradio as gr
 
